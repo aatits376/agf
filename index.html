@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Aama Gai Firm</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css'>
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Bungee'>
+<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.2/css/all.css'><link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!-- Component: product -->
+<template id="product">
+   <div class="product">
+   <div class="product-image" @click="goToProduct">
+      <img :src="`img/${img}.png`" alt=""/>
+   </div>
+   <div class="product-info">
+      <h3>
+         <a @click="goToProduct">{{ name }}</a>
+      </h3>
+      <p>{{ formatPrice }}</p>
+      <blockquote v-show="itemCount(itemIndex) > 0">{{ itemCount(itemIndex) + ' in cart' }}</blockquote>
+      <button class="btn" @click="addToCart(product)">Add to Cart</button>
+   </div>
+</template>
+<!-- /product -->
+<!-- Component: our_products -->
+<template id="our_products">
+   <div class="content">
+      <section v-if="errored">
+         <p>Hmmm. Something has gone wrong.</p>
+      </section>
+      <section v-if="!errored">
+         <p v-show="loading">Loading... <i class="fas fa-spinner fa-spin"></i></p>
+         <Product v-for="(product, index) in filteredProducts" :key="index" v-bind="product"/>
+      </section>
+   </div>
+</template>
+<!-- /our_products -->
+<!-- Component: product-detail -->
+<template id="product-detail">
+   <div v-if="product" class="product-detail">
+      <h2>{{ product.name }}</h2>
+      <img :src="`img/${product.img}.png`" alt=""/>
+      <p>{{ lorem }}</p>
+      <router-link class="btn red lighten-1" :to="{ name: 'our_products', params: { our_products: product.our_products.toLowerCase() }}"><i class="fas fa-arrow-left"></i> Back to {{ product.our_products }}</router-link>
+      <button class="btn" @click="addToCart(productPayload)">Add to cart</button>
+      <blockquote v-show="itemCount(itemIndex) > 0">{{ itemCount(itemIndex) + ' in cart' }}</blockquote>
+   </div>
+</template>
+<!-- /product-detail -->
+<!-- App -->
+<div v-cloak id="app" class="outer">
+   <div class="nav">
+      <div class="logo">
+          <img src=".//logo.png" class="vue-logo-v"/><h1><router-link class="no-active" to="/">आमा गाई फर्म</router-link></h1>
+                </div>
+      <div class="shopping-status">
+         <a @click="showModal = true">Cart: ({{ cartCount }})</a>
+      </div>
+   </div>
+   <section class="table full">
+      <aside>
+         <div class="menu">
+            <h2>उत्पादनहरू</h2>
+            <div v-if="errored">
+               <p>Something went wrong</p>
+            </div>
+            <div v-if="!errored">
+               <p v-show="loading">Loading... <i class="fas fa-spinner fa-spin"></i></p>
+               <ul>
+                  <li v-for="(our_products, index) in our_productss" :key="index">
+                     <router-link :to="{ name: 'our_products', params: { our_products: our_products }}">{{ our_products }}</router-link>
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </aside>
+      <main>
+         <transition name="medium-fade" @after-leave="afterLeave">
+            <router-view :key="$route.path"></router-view>
+         </transition>
+      </main>
+   </section>
+   <!-- modal -->
+   <transition name="fast-fade">
+      <div v-show="showModal" class="modal-backdrop">
+         <div class="modalouter">
+            <div class="modal-cell">
+               <div class="modal-content">
+                  <h2>Shopping Cart</h2>
+                  <hr>
+                  <div v-if="cartItems.length != 0">
+                     <div class="cart-container">
+                        <div class="cart-product" v-for="(item, index) in cartItems" :key="index">
+                           <div>{{ item.name | capitalise }}</div>
+                           <div>{{ itemTotal(index) | currency }}</div>
+                           <div>
+                              <button @click="changeQuantity(index,false)">-</button>
+                              <input type="text" class="browser-default" :value="item.quantity" disabled>
+                              <button @click="changeQuantity(index,true)">+</button>   
+                           </div>
+                           <div><i @click="removeAllItems(item, index)" :class="item.isDeleting ? 'fas fa-spinner fa-spin' : 'fas fa-trash-alt'"></i></div>
+                        </div>
+                     </div>
+                     <p class="shopping-cart_total">Total: {{ cartTotal | currency }}</p>
+                  </div>
+                  <div v-if="cartItems.length == 0">
+                     <p>Your shopping cart is empty</p>
+                  </div>
+                  <button class="btn close-modal" @click="showModal = false">Close cart</button> <br>
+                  <button class="btn close-modal">Checkout</button>
+               </div>
+            </div>
+         </div>
+      </div>
+   </transition>
+   <!--modal-->
+</div>
+
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/vuex/3.1.0/vuex.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/vue-router/3.0.2/vue-router.min.js'></script>
+<script src='https://unpkg.com/axios/dist/axios.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.js'></script><script  src="./script.js"></script>
+
+</body>
+</html>
